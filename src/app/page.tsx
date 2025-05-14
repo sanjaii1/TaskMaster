@@ -33,8 +33,8 @@ export default function TaskMasterPage() {
             description: task.description || '',
             completed: task.completed || false,
             priority: task.priority || 'medium',
-            dueDate: task.dueDate,
-            notes: task.notes,
+            dueDate: task.dueDate, // Handles tasks that might not have this field
+            notes: task.notes, // Handles tasks that might not have this field
           }))
         );
       }
