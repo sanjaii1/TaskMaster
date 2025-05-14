@@ -3,9 +3,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Task, Priority } from '@/types/task';
-import { AddTaskForm } from '@/components/task/AddTaskForm';
-import { FilterTabs } from '@/components/task/FilterTabs';
-import { TaskList } from '@/components/task/TaskList';
+import { AddTaskForm } from '@/components/AddTaskForm';
+import { FilterTabs } from '@/components/FilterTabs';
+import { TaskList } from '@/components/TaskList';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
