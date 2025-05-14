@@ -1,16 +1,22 @@
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import type { Task } from '@/types/task';
+import type { Task, Priority } from '@/types/task';
 import { AddTaskForm } from '@/components/task/AddTaskForm';
 import { FilterTabs } from '@/components/task/FilterTabs';
 import { TaskList } from '@/components/task/TaskList';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { format } from 'date-fns';
 
 export default function TaskMasterPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskDescription, setNewTaskDescription] = useState('');
+  const [newDueDate, setNewDueDate] = useState<Date | undefined>(undefined);
+  const [newPriority, setNewPriority] = useState<Priority>('medium');
+  const [newNotes, setNewNotes] = useState('');
+  
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
@@ -20,7 +26,17 @@ export default function TaskMasterPage() {
     try {
       const storedTasks = localStorage.getItem('tasks');
       if (storedTasks) {
-        setTasks(JSON.parse(storedTasks));
+        const parsedTasks = JSON.parse(storedTasks) as Partial<Task>[];
+        setTasks(
+          parsedTasks.map(task => ({
+            id: task.id || crypto.randomUUID(),
+            description: task.description || '',
+            completed: task.completed || false,
+            priority: task.priority || 'medium',
+            dueDate: task.dueDate,
+            notes: task.notes,
+          }))
+        );
       }
     } catch (error) {
       console.error("Failed to load tasks from localStorage", error);
@@ -61,14 +77,23 @@ export default function TaskMasterPage() {
       id: crypto.randomUUID(),
       description: newTaskDescription.trim(),
       completed: false,
+      dueDate: newDueDate ? format(newDueDate, "yyyy-MM-dd") : undefined,
+      priority: newPriority,
+      notes: newNotes.trim() || undefined,
     };
     setTasks(prevTasks => [newTask, ...prevTasks]);
+    
+    // Reset form fields
     setNewTaskDescription('');
+    setNewDueDate(undefined);
+    setNewPriority('medium');
+    setNewNotes('');
+
     toast({
       title: "Task Added",
       description: `"${newTask.description}" has been added.`,
     });
-  }, [newTaskDescription, toast]);
+  }, [newTaskDescription, newDueDate, newPriority, newNotes, toast]);
 
   const handleToggleComplete = useCallback((taskId: string) => {
     setTasks(prevTasks =>
@@ -101,7 +126,6 @@ export default function TaskMasterPage() {
   }, [tasks, filter]);
 
   if (!isMounted) {
-    // Render a simple loading state or null to avoid hydration mismatch with localStorage
     return (
       <div className="flex justify-center items-center min-h-screen">
         <p>Loading TaskMaster...</p>
@@ -119,6 +143,12 @@ export default function TaskMasterPage() {
           <AddTaskForm
             newTaskDescription={newTaskDescription}
             setNewTaskDescription={setNewTaskDescription}
+            newDueDate={newDueDate}
+            setNewDueDate={setNewDueDate}
+            newPriority={newPriority}
+            setNewPriority={setNewPriority}
+            newNotes={newNotes}
+            setNewNotes={setNewNotes}
             onAddTask={handleAddTask}
           />
           <FilterTabs currentFilter={filter} onSetFilter={setFilter} />
