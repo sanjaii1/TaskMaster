@@ -5,6 +5,17 @@ import type { Task } from '@/types/task';
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Trash2, CalendarDays, StickyNote } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format, parseISO } from 'date-fns';
@@ -57,15 +68,35 @@ export function TaskItem({ task, onToggleComplete, onDeleteTask }: TaskItemProps
             {task.description}
           </label>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => onDeleteTask(task.id)}
-          className="text-destructive hover:bg-destructive/10 hover:text-destructive ml-2 shrink-0"
-          aria-label={`Delete task: ${task.description}`}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive ml-2 shrink-0"
+              aria-label={`Delete task: ${task.description}`}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the task: "{task.description}".
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => onDeleteTask(task.id)}
+                className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <div className="mt-2 pl-7 space-y-1"> {/* Aligned with checkbox */}
